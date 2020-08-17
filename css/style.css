@@ -1,0 +1,47 @@
+html {
+    position: relative;
+    min-height: 100%;
+}
+
+body {
+    margin-bottom: 1rem;
+}
+
+.max-width {
+    width: 100%;
+}
+
+.container-fluid {
+    padding-top: 3rem;
+}
+
+.col-num {
+    padding-right: 0.4rem !important;
+    padding-left: 0.4rem !important;
+    padding-bottom: 0.4rem !important;
+
+}
+
+.calculator {
+    border: 1px solid rgb(196, 200, 212);
+    border-radius: 0.25rem;
+    background-color: rgb(247, 247, 247);
+
+}
+
+.text-align-end {
+    text-align: end;
+}
+
+.form-control-label {
+    padding-right: 1rem;
+}
+
+.footer {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    height: 60px;
+    line-height: 60px;
+    background-color: #dee0e2 !important;
+}

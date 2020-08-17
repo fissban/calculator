@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora</title>
+
+    <!-- getbootstrap-->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js" integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV" crossorigin="anonymous"></script>
+
+    <!-- css propios -->
+    <link rel="stylesheet" href="./css/style.css">
+</head>
+
+<body class="bg-light">
+    <header>
+        <nav class="navbar navbar-dark bg-primary">
+            <a class="navbar-brand" href="#">Navbar</a>
+        </nav>
+    </header>
+
+    <main role="main">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-12 text-center text-primary">
+                    <h1>Calculator</h1>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-4"></div>
+                <div class="col-4 calculator bg-dark shadow p-3 mb-5 rounded">
+                    <div class="row text-white text-align-end">
+                        <span class="form-control-label text-align-end max-width" style="font-size: 2rem;" id="visor">0.00</span>
+                    </div>
+                    <div class="row text-secondary text-align-end">
+                        <span class="form-control-label text-align-end max-width" style="font-size: 1.5rem;" id="display">0</span>
+                    </div>
+                    <div class="row text-center">
+                        <div class="col-3 col-num"><button class="btn btn-primary max-width" onclick="CE()">CE</button></div>
+                        <div class="col-3 col-num"><button class="btn btn-primary max-width">C</button></div>
+                        <div class="col-3 col-num"><button class="btn btn-primary max-width" onclick="backspace()">«-</button></div>
+                        <div class="col-3 col-num"><button class="btn btn-success max-width" onclick="addOperator('/')">/</button></div>
+                    </div>
+                    <div class="row text-center">
+                        <div class="col-3 col-num"><button class="btn btn-primary max-width" onclick="addNumberVisor(1)">1</button></div>
+                        <div class="col-3 col-num"><button class="btn btn-primary max-width" onclick="addNumberVisor(2)">2</button></div>
+                        <div class="col-3 col-num"><button class="btn btn-primary max-width" onclick="addNumberVisor(3)">3</button></div>
+                        <div class="col-3 col-num"><button class="btn btn-success max-width" onclick="addOperator('*')">*</button></div>
+                    </div>
+                    <div class="row text-center">
+                        <div class="col-3 col-num"><button class="btn btn-primary max-width" onclick="addNumberVisor(4)">4</button></div>
+                        <div class="col-3 col-num"><button class="btn btn-primary max-width" onclick="addNumberVisor(5)">5</button></div>
+                        <div class="col-3 col-num"><button class="btn btn-primary max-width" onclick="addNumberVisor(6)">6</button></div>
+                        <div class="col-3 col-num"><button class="btn btn-success max-width" onclick="addOperator('+')">+</button></div>
+                    </div>
+                    <div class="row text-center">
+                        <div class="col-3 col-num"><button class="btn btn-primary max-width" onclick="addNumberVisor(7)">7</button></div>
+                        <div class="col-3 col-num"><button class="btn btn-primary max-width" onclick="addNumberVisor(8)">8</button></div>
+                        <div class="col-3 col-num"><button class="btn btn-primary max-width" onclick="addNumberVisor(9)">9</button></div>
+                        <div class="col-3 col-num"><button class="btn btn-success max-width" onclick="addOperator('-')">-</button></div>
+                    </div>
+                    <div class="row">
+                        <div class="col-9 col-num"><button class="btn btn-primary max-width" onclick="addNumberVisor(0)">0</button></div>
+                        <div class="col-3 col-num"><button class="btn btn-warning max-width" onclick="calculate()">=</button></div>
+                    </div>
+                </div>
+                <div class="col-4"></div>
+            </div>
+        </div>
+        <br>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <span class="text-dark">© 2020 Copyright | <a href="mailto:marco.faccio@gmail.com">Contact</a></span>
+        </div>
+    </footer>
+
+    <!-- scripts -->
+    <script src="./js/script.js"></script>
+</body>
+
+</html>
