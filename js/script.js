@@ -1,4 +1,5 @@
 const OPERATORS = ["+", "-", "/", "*"];
+const OPERATORS_CALC = ["+", "-", "÷", "×"];
 const RESULT = "=";
 const ENTER = "Enter";
 const BAKCSPACE = "Backspace";
@@ -25,21 +26,17 @@ function calculateOperator(result, number, lastOperator)
 {
     switch (lastOperator)
     {
-        case '*':
+        case '×':
             result *= parseInt(number);
-            lastOperator = "";
             break;
-        case '/':
+        case '÷':
             result /= parseInt(number);
-            lastOperator = "";
             break;
         case '+':
             result += parseInt(number);
-            lastOperator = "";
             break;
         case '-':
             result -= parseInt(number);
-            lastOperator = "";
             break;
     }
     return result;
@@ -63,7 +60,7 @@ function parseAddSub()
     {
         let lastElement = (pos == VISOR.textContent.length - 1);
         let char = VISOR.textContent[pos];
-        if (char.includes("+", "-"))
+        if (char.includes("+") || char.includes("-"))
         {
             parse.push(VISOR.textContent.slice(lastOperatorPos, lastElement ? pos : pos + 1));
             lastOperatorPos = pos + 1;
@@ -94,124 +91,105 @@ function calculate()
      *      - pos:1 -> 4
      * 3) Se recorre el vector sumando cada posicion con el siguiente respetando los operadores que quedaron.
      */
+    listOperation = parseAddSub();
 
-    // TODO esto requiere mejor analisis
-    if (countOperators() >= 1)
+    // se haran 2 foreach para mantener el codigo mas claro.
+    // 1) resolver las multiplicaciones y divisiones
+    // 2) resolver todas las operaciones.
+    let index = 0;
+    listOperation.forEach(operation =>
     {
-        listOperation = parseAddSub();
-
-        // se haran 2 foreach para mantener el codigo mas claro.
-        // 1) resolver las multiplicaciones y divisiones
-        // 2) resolver todas las operaciones.
-        let index = 0;
-        listOperation.forEach(operation =>
+        if (operation.includes("×") || operation.includes("÷"))
         {
-            if (operation.includes("*", "/"))
+            let result = 0;
+            let number1 = 0;
+            let number2 = "";
+
+            let lastOperator = "";
+
+            for (let pos = 0; pos < operation.length; pos++)
             {
-                //let vPos = 0;
-
-                let result = 0;
-                let number1 = 0;
-                let number2 = "";
-
-                let lastOperator = "";
-
-                let hasOperator = (index == listOperation.length) ? true : false;
-                // XXX hacemos -1 porque el ultimo caracter sera un signo almenos que sea el ultimo elemento
-                for (let pos = 0; pos < operation.length - (hasOperator ? -1 : 0); pos++)
+                if (!isNaN(operation.charAt(pos)))
                 {
-                    if (!isNaN(operation.charAt(pos)))
+                    // cada numero leido de cada posicion del vector se va
+                    // concatenando hasta obtener el numero formado.
+                    number2 += operation.charAt(pos);
+                }
+                else
+                {
+
+                    // se define el operador encontrado
+                    lastOperator = operation.charAt(pos);
+
+                    // encontramos el operador asique salvamos el {@link number1}
+                    // el numero leido de la concatenacion anterior.
+                    number1 = parseInt(number2);
+                    // se limpia el numero2 a fin de futuros calculos.
+                    number2 = "";
+
+                    // si es el primer numero leido no hace falta ningun calculo,
+                    // solo sumarlo(definirlo) como el resultado.
+                    if (result == 0)
                     {
-                        // cada numero leido de cada posicion del vector se va
-                        // concatenando hasta obtener el numero formado.
-                        number2 += operation.charAt(pos);
+                        result = parseInt(number1);
                     }
                     else
                     {
-                        // encontramos el operador asique salvamos el {@link number1}
-                        // el numero leido de la concatenacion anterior.
-                        number1 = parseInt(number2);
-                        // se limpia el numero2 a fin de futuros calculos.
-                        number2 = "";
-
-                        // si es el primer numero leido no hace falta ningun calculo,
-                        // solo sumarlo(defnirlo) como el resultado.
-                        if (result == 0)
-                        {
-                            result = parseInt(number1);
-                        }
-
-                        // si no existe operador definido, definimos el que leimos
-                        // para llegar a este "else" xD
-                        if (lastOperator == "")
-                        {
-                            lastOperator = operation.charAt(pos);
-                        }
-                        else
-                        {
-                            // ya se definiio el operador y se leyo el numero que 
-                            // seguia asiq podemos realizar la operacion segun el 
-                            // operador ingresado.
-                            result = calculateOperator(result, number1, lastOperator);
-                        }
-                        number1 = "";//XXX hace falta limpiarlo?
+                        // ya se definiio el operador y se leyo el numero que 
+                        // seguia asiq podemos realizar la operacion segun el 
+                        // operador ingresado.
+                        result = calculateOperator(result, number1, lastOperator);
                     }
                 }
+            }
+            // y ahora sumamos el ultimo valor que leimos y no le hicimos nada
+            result = calculateOperator(result, number2, lastOperator);
+            lastOperator = "";
 
-                // TODO esto se repite 2 veces, creamos una mini funccion? O.o
-                // y ahora sumamos el ultimo valor que leimos y no le hicimos nada
-                result = calculateOperator(result, number2, lastOperator);
+            // ------------------------------------
 
-                // ------------------------------------
-
-                if (hasOperator)
-                {
-                    result += operation.charAt(operation.length - 1);
-                }
-
-                // se almacena en el vector el resultado de la operacion
-                // en el lugar donde estaba la misma osea que si en
-                // esta posicion teniamos "2*2" ahora tendremos "4".
-                listOperation[index] = result;
+            let hasOperator = operation.charAt(- 1);
+            if (isNaN(hasOperator))
+            {
+                result += hasOperator;
             }
 
-            index++;
-        });
+            // se almacena en el vector el resultado de la operacion
+            // en el lugar donde estaba la misma osea que si en
+            // esta posicion teniamos "2*2" ahora tendremos "4".
+            listOperation[index] = result;
+        }
 
-        let resultFinal = 0;
-        let lastOperator = "";
-        listOperation.forEach(operation =>
+        index++;
+    });
+
+    let result = 0;
+    let lastOperator = "";
+    listOperation.forEach(operation =>
+    {
+        // si tiene operador final se separa.-
+        if (isNaN(operation))
         {
-            // si tiene operador final se separa.-
-            if (isNaN(operation))
-            {
-                try
-                {
-                    lastOperator = operation.slice(-1);
-                    operation = operation.slice(0, -1);
-                }
-                catch (error)
-                {
-                    return;
-                }
-            }
-            // cada "v" trae su operador a excepcion del ultimo, por lo que
-            // se verifica con "isNaN" si trae operador y asi sabremos si
-            // debemos leerlo todo como un "numero" o como "numero+operador"
+            lastOperator = operation.slice(-1);
+            operation = operation.slice(0, -1);
+        }
+        // cada "operation" trae su operador a excepcion del ultimo, por lo que
+        // se verifica con "isNaN" si trae operador o no y asi sabremos si
+        // debemos leerlo todo como un "numero" o como "numero+operador"
 
-            if (resultFinal == 0)
-            {
-                resultFinal = parseInt(operation);
-            }
-            else
-            {
-                // a estas alturas solo tendremos operadores de +/-
-                resultFinal = calculateOperator(resultFinal, operation, lastOperator);
-            }
-        });
+        if (result == 0)
+        {
+            result = parseInt(operation);
+        }
+        else
+        {
+            // a estas alturas solo tendremos operadores de +/-
+            result = calculateOperator(result, operation, lastOperator);
+        }
+    });
 
-        DISPLAY.textContent = "Result: " + resultFinal;
-    }
+
+    DISPLAY.textContent = "Result: " + result;
 }
 
 /**
@@ -233,11 +211,21 @@ function addNumberVisor(value)
 }
 
 /**
- * Agrega un operador (+,-,/,*) al visor
+ * Agrega un operador (+,-,÷,×) al visor
  * @param {*} value 
  */
 function addOperator(value)
 {
+    switch (value)
+    {
+        case '/':
+            value = '÷';
+            break;
+        case '*':
+            value = '×';
+            break;
+    }
+
     // si el operador ingresado es un valor cero no se realiza accion.
     // TODO chequear a futuro para numeros negativos de entrada
     if (VISOR.textContent == "0.00" || VISOR.textContent == "0")
@@ -252,7 +240,7 @@ function addOperator(value)
     }
     // si el ultimo caracter es un operador lo
     // borramos para luego insertar el nuevo
-    if (OPERATORS.includes(VISOR.textContent.charAt(lastPos)))
+    if (OPERATORS_CALC.includes(VISOR.textContent.charAt(lastPos)))
     {
         VISOR.textContent = VISOR.textContent.slice(0, -1);
     }
@@ -261,26 +249,8 @@ function addOperator(value)
 
     if (countOperators() > 1)
     {
-        calculate();
+        //calculate();
     }
-}
-
-// TODO pendiente a mejorar.
-function countOperators()
-{
-    let count = 0;
-    for (let e = 0; e < VISOR.textContent.length; e++)
-    {
-        OPERATORS.forEach(operator =>
-        {
-            if (operator == VISOR.textContent[e])
-            {
-                count++;
-            }
-        });
-    }
-
-    return count;
 }
 
 /**
@@ -311,6 +281,11 @@ function ce()
 // AQUI COMIENZA LA MAGIA :D
 // ------------------------------------------------------------------------
 // Se crea un listener para ver los eventos del teclado.
+// alt+94  -> ^ (potencia)
+// alt+241 -> ± 
+// alt+158 -> ×
+// alt+246 -> ÷
+// √ˉ
 document.addEventListener("keydown", event =>
 {
     let keyPressed = event.key;
@@ -335,11 +310,12 @@ document.addEventListener("keydown", event =>
     if (keyPressed == BAKCSPACE)
     {
         backspace();
-        calculate();
+        //calculate();
         return;
     }
     if (keyPressed == ENTER)
     {
+        // TODO chequear si la ecuacion termina con un operador....eliminarlo?
         calculate();
         clearVisor = true;
         return;
