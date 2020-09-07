@@ -12,8 +12,38 @@ const DISPLAY = document.getElementById("display");
  * a la vista, con esto logramos que en la siguiente iteracion se vuelva a iniciar
  * con una nueva formula.
  */
-var nextValueClearVisor = false;
+var clearVisor = false;
 
+/**
+ * Se realiza un sencillo calculo de acuerdo lo que se pase por 'lastOperator'.
+ * - Example 
+ * @param {number} result 
+ * @param {number} number
+ * @param {string(+,-,/,*)} lastOperator 
+ */
+function calculateOperator(result, number, lastOperator)
+{
+    switch (lastOperator)
+    {
+        case '*':
+            result *= parseInt(number);
+            lastOperator = "";
+            break;
+        case '/':
+            result /= parseInt(number);
+            lastOperator = "";
+            break;
+        case '+':
+            result += parseInt(number);
+            lastOperator = "";
+            break;
+        case '-':
+            result -= parseInt(number);
+            lastOperator = "";
+            break;
+    }
+    return result;
+}
 /**
  * Se separa por terminos las operaciones ingresadas al {@field VISOR}.
  * Cada elemento del vector contendra el numero mas el operador que le sigue.
@@ -51,7 +81,7 @@ function parseAddSub()
  */
 function calculate()
 {
-    let vector = [];
+    let listOperation = [];
 
     /** 
      * 1) Se separa el contenido de {@link VISOR} segun la operacion que contenga.
@@ -68,17 +98,17 @@ function calculate()
     // TODO esto requiere mejor analisis
     if (countOperators() >= 1)
     {
-        vector = parseAddSub();
+        listOperation = parseAddSub();
 
         // se haran 2 foreach para mantener el codigo mas claro.
         // 1) resolver las multiplicaciones y divisiones
         // 2) resolver todas las operaciones.
-        let vectorIndex = 0;
-        vector.forEach(v =>
+        let index = 0;
+        listOperation.forEach(operation =>
         {
-            if (v.includes("*", "/"))
+            if (operation.includes("*", "/"))
             {
-                let vPos = 0;
+                //let vPos = 0;
 
                 let result = 0;
                 let number1 = 0;
@@ -86,15 +116,15 @@ function calculate()
 
                 let lastOperator = "";
 
-                let hasOperator = vPos == vector.length ? true : false;
+                let hasOperator = (index == listOperation.length) ? true : false;
                 // XXX hacemos -1 porque el ultimo caracter sera un signo almenos que sea el ultimo elemento
-                for (let pos = 0; pos < v.length - (hasOperator ? -1 : 0); pos++)
+                for (let pos = 0; pos < operation.length - (hasOperator ? -1 : 0); pos++)
                 {
-                    if (!isNaN(v.charAt(pos)))
+                    if (!isNaN(operation.charAt(pos)))
                     {
                         // cada numero leido de cada posicion del vector se va
                         // concatenando hasta obtener el numero formado.
-                        number2 += v.charAt(pos);
+                        number2 += operation.charAt(pos);
                     }
                     else
                     {
@@ -115,103 +145,69 @@ function calculate()
                         // para llegar a este "else" xD
                         if (lastOperator == "")
                         {
-                            lastOperator = v.charAt(pos);
+                            lastOperator = operation.charAt(pos);
                         }
                         else
                         {
                             // ya se definiio el operador y se leyo el numero que 
                             // seguia asiq podemos realizar la operacion segun el 
                             // operador ingresado.
-                            if (lastOperator == "*")
-                            {
-                                result *= parseInt(number1);
-                                lastOperator = "";
-                            }
-                            else if (lastOperator == "/")
-                            {
-                                result /= parseInt(number1);
-                                lastOperator = "";
-                            }
+                            result = calculateOperator(result, number1, lastOperator);
                         }
-
                         number1 = "";//XXX hace falta limpiarlo?
-
                     }
                 }
 
                 // TODO esto se repite 2 veces, creamos una mini funccion? O.o
                 // y ahora sumamos el ultimo valor que leimos y no le hicimos nada
-                if (lastOperator == "*")
-                {
-                    result *= parseInt(number2);
-                    lastOperator = "";
-                }
-                else if (lastOperator == "/")
-                {
-                    result /= parseInt(number2);
-                    lastOperator = "";
-                }
+                result = calculateOperator(result, number2, lastOperator);
+
                 // ------------------------------------
 
                 if (hasOperator)
                 {
-                    result += v.charAt(v.length - 1);
+                    result += operation.charAt(operation.length - 1);
                 }
 
                 // se almacena en el vector el resultado de la operacion
                 // en el lugar donde estaba la misma osea que si en
                 // esta posicion teniamos "2*2" ahora tendremos "4".
-                vector[vectorIndex] = result;
-                vPos++;
+                listOperation[index] = result;
             }
 
-            vectorIndex++;
+            index++;
         });
 
         let resultFinal = 0;
         let lastOperator = "";
-        vector.forEach(v =>
+        listOperation.forEach(operation =>
         {
+            // si tiene operador final se separa.-
+            if (isNaN(operation))
+            {
+                try
+                {
+                    lastOperator = operation.slice(-1);
+                    operation = operation.slice(0, -1);
+                }
+                catch (error)
+                {
+                    return;
+                }
+            }
             // cada "v" trae su operador a excepcion del ultimo, por lo que
             // se verifica con "isNaN" si trae operador y asi sabremos si
             // debemos leerlo todo como un "numero" o como "numero+operador"
-            let value = isNaN(v) ? v.slice(0, -1) : v;
+
             if (resultFinal == 0)
             {
-                resultFinal = parseInt(value);
-                try
-                {
-                    lastOperator = v.slice(-1);
-                }
-                catch (e)
-                {
-                    // ignore....lanzara una excepcion al leer
-                    // el ultimo valor q no contiene operador.
-                }
+                resultFinal = parseInt(operation);
             }
             else
             {
                 // a estas alturas solo tendremos operadores de +/-
-                if (lastOperator == "+")
-                {
-                    resultFinal += parseInt(value);
-                }
-                else
-                {
-                    resultFinal -= parseInt(value);
-                }
-
-                try
-                {
-                    lastOperator = v.slice(-1);
-                }
-                catch (e)
-                {
-                    // ignore....lanzara una excepcion al leer
-                    // el ultimo valor q no contiene operador.
-                }
+                resultFinal = calculateOperator(resultFinal, operation, lastOperator);
             }
-
         });
 
         DISPLAY.textContent = "Result: " + resultFinal;
@@ -272,19 +268,19 @@ function addOperator(value)
 // TODO pendiente a mejorar.
 function countOperators()
 {
-    let value = 0;
+    let count = 0;
     for (let e = 0; e < VISOR.textContent.length; e++)
     {
-        OPERATORS.forEach(o =>
+        OPERATORS.forEach(operator =>
         {
-            if (o == VISOR.textContent[e])
+            if (operator == VISOR.textContent[e])
             {
-                value++;
+                count++;
             }
         });
     }
 
-    return value;
+    return count;
 }
 
 /**
@@ -307,7 +303,7 @@ function backspace()
  * Limpia por completo la pantalla.
  * Unicamente llamado desde el html.
  */
-function CE()
+function ce()
 {
     VISOR.textContent = "0";
 }
@@ -322,10 +318,10 @@ document.addEventListener("keydown", event =>
     {
         // si se indica se borrara la pantalla antes de ingresar
         // un nuevo valor.
-        if (nextValueClearVisor)
+        if (clearVisor)
         {
-            CE();
-            nextValueClearVisor = false;
+            ce();
+            clearVisor = false;
         }
         addNumberVisor(keyPressed);
         calculate();
@@ -345,7 +341,7 @@ document.addEventListener("keydown", event =>
     if (keyPressed == ENTER)
     {
         calculate();
-        nextValueClearVisor = true;
+        clearVisor = true;
         return;
     }
 });
